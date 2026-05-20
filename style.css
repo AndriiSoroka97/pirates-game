@@ -2,7 +2,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #1a120b; 
+    background: #110b07; /* Трохи темніший, атмосферний колір суші */
     color: #f5ebe0;
     display: flex;
     flex-direction: column;
@@ -12,49 +12,51 @@ body {
     box-sizing: border-box;
 }
 
+/* ЗМЕНШЕНА ШАПКА САЙТУ */
 header {
     width: 100%;
-    background: #3c2a21; 
-    padding: 20px 0;
+    background: #271a13; 
+    padding: 10px 0; /* Зменшили відступи з 20px до 10px */
     text-align: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-    border-bottom: 3px solid #d4a373; 
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    border-bottom: 2px solid #b37d4e; 
 }
 
 header h1 {
     margin: 0;
-    font-size: 2.2rem;
-    letter-spacing: 4px;
+    font-size: 1.5rem; /* Зменшили шрифт заголовка з 2.2rem */
+    letter-spacing: 3px;
     color: #d4a373;
     text-transform: uppercase;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
 }
 
 .login-container {
-    background: #2f1f17;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
-    border: 1px solid #4a3525;
-    width: 90%;
-    max-width: 350px;
+    background: #1d130e; /* Колір внутрішніх блоків */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+    border: 1px solid #3a251a;
+    width: 95%;
+    max-width: 360px;
     text-align: center;
-    margin-bottom: 20px;
+    margin: 15px 0;
+    box-sizing: border-box;
 }
 
 .or-divider {
-    margin: 15px 0;
+    margin: 10px 0;
     color: #b79477;
     font-weight: bold;
     text-transform: uppercase;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     letter-spacing: 2px;
 }
 
 .login-container h2 {
     margin-top: 0;
     margin-bottom: 15px;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     color: #e6ccb2;
     text-transform: uppercase;
 }
@@ -76,12 +78,11 @@ header h1 {
     padding: 12px;
     border-radius: 6px;
     border: 1px solid #4a3525;
-    background: #1a120b;
+    background: #0d0805;
     color: #fff;
     font-size: 1rem;
     box-sizing: border-box;
     outline: none;
-    transition: border-color 0.3s;
 }
 
 .form-group input[type="text"]:focus {
@@ -116,76 +117,94 @@ header h1 {
     cursor: pointer;
 }
 
-.terms-group input {
-    margin-top: 3px;
-    transform: scale(1.1);
-    accent-color: #d4a373;
-}
-
-.terms-group span {
-    font-size: 0.8rem;
-    color: #cbb29c;
-    line-height: 1.3;
-}
-
 .submit-btn {
     width: 100%;
     padding: 12px;
-    background: #d4a373;
+    background: #b37d4e;
     border: none;
-    border-radius: 6px;
+    border-radius: 4px;
     color: #1a120b;
     font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
     text-transform: uppercase;
-    transition: background 0.2s;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
-.submit-btn:hover {
-    background: #e6ccb2;
+/* --- НОВІ СТИЛІ ДЛЯ СТРУКТУРИ МІСТА (ЯК НА ФОТО) --- */
+
+.city-greeting-box {
+    background: #271a13;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+    color: #b79477;
+    border-left: 3px solid #b37d4e;
+    text-align: left;
 }
 
-.submit-btn:disabled {
-    background: #5c4d41;
-    color: #8c7665;
-    cursor: not-allowed;
+.menu-block {
+    margin-bottom: 15px;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
 }
 
-.tavern-content {
-    background: #1a120b;
-    padding: 25px;
-    border-radius: 8px;
-    border: 1px dashed #d4a373;
-    margin-bottom: 20px;
-    font-size: 1.2rem;
-    text-align: center;
+/* Червоно-коричнева шапка блоку */
+.menu-block-header {
+    background: #892c13; /* Автентичний цегляно-червоний колір розділювача */
+    color: #fff;
+    padding: 6px 12px;
+    font-weight: bold;
+    font-size: 0.95rem;
+    text-align: left;
+    letter-spacing: 1px;
+}
+
+.menu-list {
+    background: #150d09; /* Світліший за основний фон, щоб виділити блоки */
+}
+
+/* Елементи списку локацій */
+.menu-item {
+    padding: 12px 15px;
+    text-align: left;
+    font-size: 1rem;
+    color: #ff9f43; /* Приємний помаранчевий відтінок для тексту посилань */
+    border-bottom: 1px solid #22150e; /* Лінія розділювача між кнопками */
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.menu-item:last-child {
+    border-bottom: none; /* У прикінцевого елемента лінію прибираємо */
+}
+
+.menu-item:active {
+    background: #271a13; /* Відгук на тач на телефоні */
+    color: #fff;
 }
 
 .change-user-btn {
     background: transparent;
     border: none;
-    color: #8c7665;
+    color: #6d4c41;
     font-size: 0.8rem;
     text-decoration: underline;
     cursor: pointer;
-    margin-top: 15px;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
-.change-user-btn:hover {
-    color: #d4a373;
-}
 
 #loadingScreen {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     color: #d4a373;
     margin: auto;
 }
 
 footer {
-    padding: 15px;
-    font-size: 0.8rem;
-    color: #654e3c;
+    padding: 10px;
+    font-size: 0.75rem;
+    color: #4a3225;
 }
