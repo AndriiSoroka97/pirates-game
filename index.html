@@ -9,7 +9,13 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2.43.0/dist/umd/supabase.js"></script>
     
-    <link rel="stylesheet" href="style.css">
+    <script>
+    // Автоматично додаємо мітку часу до CSS, щоб скинути кеш
+    const cssLink = document.createElement('link');
+    cssLink.rel = 'stylesheet';
+    cssLink.href = 'style.css?v=' + Date.now();
+    document.head.appendChild(cssLink);
+</script>
 </head>
 <body>
 
@@ -65,7 +71,16 @@
         &copy; 2026 Гра "Пірати".
     </footer>
 
-    <script src="city.js"></script>
+    <script>
+    // Динамічно завантажуємо city.js із захистом від кешування
+    const cityScript = document.createElement('script');
+    cityScript.src = 'city.js?v=' + Date.now();
+    // Як тільки скрипт міста завантажиться — ми запускаємо перевірку автологіну
+    cityScript.onload = () => {
+        checkAutoLogin();
+    };
+    document.body.appendChild(cityScript);
+</script>
 
     <script>
         const debug = document.getElementById('debugConsole');
@@ -224,7 +239,6 @@
             }
         });
 
-        checkAutoLogin();
     </script>
 </body>
 </html>
