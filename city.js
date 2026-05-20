@@ -34,7 +34,7 @@ function initCity(pirateName) {
 
     // 3. ГЕНЕРУЄМО БЛОК 2: МІСТО
     const cityBlock = createLocationBlock('🏰 Місто', [
-        { name: '🍻 Таверна', id: 'btn_tavern' },
+        { name: '🍻 Таверна111', id: 'btn_tavern' },
         { name: '🛠 Верфь', id: 'btn_shipyard' },
         { name: '🏴‍☠ Чорний ринок', id: 'btn_blackmarket' },
         { name: '💎 Піратські майстри', id: 'btn_crafters' },
