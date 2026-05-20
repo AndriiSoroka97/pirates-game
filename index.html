@@ -10,13 +10,11 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2.43.0/dist/umd/supabase.js"></script>
     
     <link rel="stylesheet" href="style.css">
-    
-    <script src="city.js" defer></script>
 </head>
 <body>
 
     <header>
-        <h1>☠ Пірати ☠</h1>
+        <h1>☠ Піратська пристань ☠</h1>
     </header>
 
     <main id="loadingScreen">
@@ -60,19 +58,14 @@
         </div>
     </div>
 
-    <main id="cityScreen" class="login-container" style="display: none;">
-        <h2>⚓ Піратська пристань ⚓</h2>
-        <div class="tavern-content">
-            <span id="cityGreeting">Привіт, Капітане!</span>
-        </div>
-        
-        <button id="explorePortBtn" class="submit-btn" style="background: #3c2a21; color: #d4a373; border: 1px solid #d4a373;">Оглянути порт</button>
-        <button id="changeUserBtn" class="change-user-btn">Змінити користувача</button>
-    </main>
+    <main id="cityScreen" class="login-container" style="display: none; text-align: left; background: transparent; border: none; box-shadow: none; padding: 0;">
+        </main>
 
     <footer>
         &copy; 2026 Гра "Пірати".
     </footer>
+
+    <script src="city.js"></script>
 
     <script>
         const debug = document.getElementById('debugConsole');
@@ -116,7 +109,7 @@
             const activePirate = localStorage.getItem('active_pirate_name');
             
             if (activePirate) {
-                initCity(activePirate); // Функція викликається з файлу city.js
+                initCity(activePirate); 
                 return;
             }
 
@@ -231,8 +224,7 @@
             }
         });
 
-        window.addEventListener('DOMContentLoaded', checkAutoLogin);
+        checkAutoLogin();
     </script>
-
 </body>
 </html>
