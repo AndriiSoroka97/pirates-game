@@ -6,7 +6,6 @@
     <meta name="robots" content="noindex, nofollow">
     <title>Пірати - Реєстрація</title>
     
-    <!-- Підключаємо Telegram та SDK Supabase для роботи з БД -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
@@ -135,6 +134,14 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
 
+        .submit-btn:hover {
+            background: #e6ccb2;
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+
         .submit-btn:disabled {
             background: #5c4d41;
             color: #8c7665;
@@ -165,13 +172,12 @@
                 <div id="usernameError" class="error-msg">Йо-хо-хо! Цей нікнейм уже зайнятий іншим піратом!</div>
             </div>
 
-            <!-- Галочка з умовами -->
             <label class="terms-group">
-                <input type="checkbox" id="termsCheckbox" required>
+                <input type="checkbox" id="termsCheckbox">
                 <span>Я підтверджую умови гри.</span>
             </label>
 
-            <button type="submit" id="submitBtn" class="submit-btn" disabled>Підняти вітрила</button>
+            <button type="submit" id="submitBtn" class="submit-btn">Підняти вітрила</button>
         </form>
     </main>
 
@@ -180,10 +186,11 @@
     </footer>
 
     <script>
-        // ВСТАВ СЮДИ СВОЇ ДАНІ З SUPABASE
+        // Твої перевірені дані з Supabase
         const SUPABASE_URL = "https://gihdsrwyvonaewyngwnu.supabase.co"; 
         const SUPABASE_KEY = "sb_publishable_ldLuj_izEdq5ZKYfcOuojg_kiZB42In";
         
+        // Виправлена ініціалізація клієнта
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const tg = window.Telegram.WebApp;
         tg.expand();
@@ -194,40 +201,39 @@
         const termsCheckbox = document.getElementById('termsCheckbox');
         const submitBtn = document.getElementById('submitBtn');
 
-        // Функція активації кнопки від стану чекбоксу
-        function validateForm() {
-            if (termsCheckbox.checked && usernameInput.value.trim() !== "") {
-                submitBtn.disabled = false;
-            } else {
-                submitBtn.disabled = true;
-            }
-        }
-
-        termsCheckbox.addEventListener('change', validateForm);
+        // Скидаємо текст помилки, коли користувач знову починає вводити нове ім'я
         usernameInput.addEventListener('input', () => {
-            usernameError.style.display = 'none'; // Ховаємо помилку, коли юзер починає писати заново
-            validateForm();
+            usernameError.style.display = 'none';
         });
 
-        // Головна логіка відправки форми
+        // Головна логіка відправки форми при натисканні на кнопку
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const username = usernameInput.value.trim();
             const tgUser = tg.initDataUnsafe?.user;
-            const tgId = tgUser ? String(tgUser.id) : "Локальний_Тест_" + Math.floor(Math.random() * 1000);
+            
+            // Захист для тестів у звичайному браузері: генеруємо випадковий ID, якщо tgId порожній
+            const tgId = tgUser ? String(tgUser.id) : "Локальний_Тест_" + Math.floor(Math.random() * 10000);
 
-            // 1. Блокування, якщо чекбокс не активний (на випадок обходу через HTML)
-            if (!termsCheckbox.checked) {
-                alert("Ви повинні погодитися з умовами!");
+            // 1. Ручна перевірка імені
+            if (username === "") {
+                alert("Йо-хо-хо! Капітан повинен мати ім'я!");
                 return;
             }
 
+            // 2. Ручна перевірка галочки умов
+            if (!termsCheckbox.checked) {
+                alert("Ви повинні погодитися з умовами гри, щоб підняти вітрила!");
+                return;
+            }
+
+            // Блокуємо кнопку на час запиту, щоб уникнути дублювання кліків
             submitBtn.disabled = true;
             submitBtn.innerText = "Перевірка...";
 
             try {
-                // 2. Перевірка імені в БД Supabase
+                // 3. Перевірка імені в БД (таблиця 'players' з маленької літери)
                 const { data: existingPlayer, error: searchError } = await supabase
                     .from('players')
                     .select('pirate_name')
@@ -237,20 +243,20 @@
                 if (searchError) throw searchError;
 
                 if (existingPlayer) {
-                    // Якщо ім'я знайдено в базі
+                    // Якщо ім'я вже зайняте
                     usernameError.style.display = 'block';
                     submitBtn.disabled = false;
                     submitBtn.innerText = "Підняти вітрила";
                     return; 
                 }
 
-                // 3. Якщо ім'я вільне — записуємо нового гравця в базу
+                // 4. Записуємо нового гравця, якщо ім'я вільне
                 const { error: insertError } = await supabase
                     .from('players')
                     .insert([{ tg_id: tgId, pirate_name: username }]);
 
                 if (insertError) {
-                    // Перевірка на випадок, якщо цей Telegram ID вже зареєстрований
+                    // Якщо цей Telegram ID вже є в базі (обмеження Unique)
                     if (insertError.code === '23505') { 
                         alert("Капітане, ваш Telegram акаунт уже має створеного персонажа!");
                     } else {
@@ -261,11 +267,11 @@
                     return;
                 }
 
-                // Успішна реєстрація
-                alert(`Ласкаво просимо на борт, Капітане ${username}! Дані успішно занесено в хмарну базу даних.`);
+                // Успішне збереження в базу даних
+                alert(`Ласкаво просимо на борт, Капітане ${username}! Дані успішно занесено в базу.`);
                 submitBtn.innerText = "Успішно!";
                 
-                // Тут у майбутньому буде перехід на сторінку "Каюти"
+                // Сюди згодом пропишемо перехід на наступний екран гри
                 
             } catch (err) {
                 console.error("Помилка бази даних:", err);
