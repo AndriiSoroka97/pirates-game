@@ -28,7 +28,7 @@ function initCity(pirateName) {
         { name: '💀 Битви', id: 'btn_battles' },
         { name: '🗺 Пошук скарбів', id: 'btn_treasures' },
         { name: '🐙 МонстриАААА', id: 'btn_monsters' },
-        { name: '🧭 Подорожі', id: 'btn_travel' }
+        { name: '🧭 ПодорожіJJJ', id: 'btn_travel' }
     ]);
     cityScreen.appendChild(adventureBlock);
 
