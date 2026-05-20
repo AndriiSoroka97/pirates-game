@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>Пірати - Реєстрація</title>
+    <title>Пірати - Мультиакаунт</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2.43.0/dist/umd/supabase.js"></script>
@@ -164,6 +164,27 @@
             text-align: center;
         }
 
+        .change-user-btn {
+            background: transparent;
+            border: none;
+            color: #8c7665;
+            font-size: 0.8rem;
+            text-decoration: underline;
+            cursor: pointer;
+            margin-top: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .change-user-btn:hover {
+            color: #d4a373;
+        }
+
+        #loadingScreen {
+            font-size: 1.2rem;
+            color: #d4a373;
+            margin: auto;
+        }
+
         footer {
             padding: 15px;
             font-size: 0.8rem;
@@ -177,8 +198,12 @@
         <h1>☠ Пірати ☠</h1>
     </header>
 
-    <main id="authScreen" class="login-container">
-        <h2>Створи свого капітана</h2>
+    <main id="loadingScreen">
+        <p>⚓ Перевірка суднового журналу... 🌊</p>
+    </main>
+
+    <main id="authScreen" class="login-container" style="display: none;">
+        <h2>Створи нового капітана</h2>
         <form id="loginForm">
             <div class="form-group">
                 <label for="username">Ім'я пірата (Нікнейм):</label>
@@ -193,7 +218,7 @@
 
             <button type="submit" id="submitBtn" class="submit-btn">Підняти вітрила</button>
             
-            <div id="debugConsole" class="debug-box">Лог: Завантаження модулів...</div>
+            <div id="debugConsole" class="debug-box">Лог: Готовність до створення.</div>
         </form>
     </main>
 
@@ -203,6 +228,8 @@
             <span id="tavernGreeting">Привіт, Капітане!</span>
         </div>
         <button class="submit-btn" style="background: #b79477;">Замовити ром</button>
+        
+        <button id="changeUserBtn" class="change-user-btn">Новий персонаж (Змінити)</button>
     </main>
 
     <footer>
@@ -211,32 +238,18 @@
 
     <script>
         const debug = document.getElementById('debugConsole');
-        
         function log(message) {
-            debug.innerText = "Лог: " + message;
+            if(debug) debug.innerText = "Лог: " + message;
         }
 
         const SUPABASE_URL = "https://gihdsrwyvonaewyngwnu.supabase.co"; 
         const SUPABASE_KEY = "sb_publishable_ldLuj_izEdq5ZKYfcOuojg_kiZB42In";
         
-        let supabase;
-
-        // Потужна крос-браузерна ініціалізація клієнта
-        try {
-            const lib = window.supabase || window.Supabase;
-            if (lib) {
-                supabase = lib.createClient(SUPABASE_URL, SUPABASE_KEY);
-                log("Корабель підключено до портів Supabase!");
-            } else {
-                log("Помилка: Не знайдено бібліотеку Supabase у window.");
-            }
-        } catch (e) {
-            log("Збій ініціалізації: " + e.message);
-        }
-
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const tg = window.Telegram.WebApp;
         tg.expand();
 
+        const loadingScreen = document.getElementById('loadingScreen');
         const authScreen = document.getElementById('authScreen');
         const tavernScreen = document.getElementById('tavernScreen');
         const tavernGreeting = document.getElementById('tavernGreeting');
@@ -246,84 +259,129 @@
         const usernameError = document.getElementById('usernameError');
         const termsCheckbox = document.getElementById('termsCheckbox');
         const submitBtn = document.getElementById('submitBtn');
+        const changeUserBtn = document.getElementById('changeUserBtn');
+
+        const tgUser = tg.initDataUnsafe?.user;
+        
+        // Для браузерних тестів залишаємо один фіксований ID сесії, щоб імітувати реальний ТГ акаунт
+        if (!sessionStorage.getItem('browser_test_id')) {
+            sessionStorage.setItem('browser_test_id', "TG_User_Test_999");
+        }
+        const tgId = tgUser ? String(tgUser.id) : sessionStorage.getItem('browser_test_id');
+
+        // --- ЛОГІКА АВТОЛОГІНУ ---
+        async function checkAutoLogin() {
+            // А. Перевіряємо локальну пам'ять пристрою (чи заходив уже кимось конкретним)
+            const activePirate = localStorage.getItem('active_pirate_name');
+            
+            if (activePirate) {
+                openTavern(activePirate);
+                return;
+            }
+
+            // Б. Якщо в локальній пам'яті порожньо, шукаємо останнього створеного перса в БД для цього ТГ ІД
+            try {
+                const { data: players, error } = await supabase
+                    .from('players')
+                    .select('pirate_name')
+                    .eq('tg_id', tgId)
+                    .order('created_at', { ascending: false }); // Сортуємо: свіжіші спочатку
+
+                if (error) throw error;
+
+                if (players && players.length > 0) {
+                    // Якщо в базі знайдено персонажів для цього ТГ — беремо найновішого (першого у списку)
+                    const latestPirate = players[0].pirate_name;
+                    localStorage.setItem('active_pirate_name', latestPirate);
+                    openTavern(latestPirate);
+                } else {
+                    // Якщо цей ТГ акаунт взагалі ще не має жодного перса
+                    showAuthScreen();
+                }
+            } catch (err) {
+                console.error(err);
+                showAuthScreen();
+                log("Помилка завантаження: " + err.message);
+            }
+        }
+
+        function openTavern(name) {
+            loadingScreen.style.display = 'none';
+            authScreen.style.display = 'none';
+            tavernGreeting.innerText = `Привіт, Капітане ${name}! 👋`;
+            tavernScreen.style.display = 'block';
+        }
+
+        function showAuthScreen() {
+            loadingScreen.style.display = 'none';
+            tavernScreen.style.display = 'none';
+            authScreen.style.display = 'block';
+        }
+
+        // --- КНОПКА «НОВИЙ ПЕРСОНАЖ / ЗМІНИТИ» ---
+        changeUserBtn.addEventListener('click', () => {
+            localStorage.removeItem('active_pirate_name'); // Стираємо активного перса з пристрою
+            usernameInput.value = "";
+            termsCheckbox.checked = false;
+            showAuthScreen(); // Повертаємо на екран реєстрації
+        });
 
         usernameInput.addEventListener('input', () => {
             usernameError.style.display = 'none';
         });
 
+        // --- РЕЄСТРАЦІЯ НОВОГО ПЕРСОНАЖА (ПРОСТИЙ INSERT) ---
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
-            
             const username = usernameInput.value.trim();
-            const tgUser = tg.initDataUnsafe?.user;
-            
-            // Захист від Unique-блокувань: унікальний нік для тесту з браузера
-            const tgId = tgUser ? String(tgUser.id) : "User_" + Math.floor(Math.random() * 99999);
 
             if (!termsCheckbox.checked) {
-                alert("Ви повинні погодитися з умовами гри!");
+                alert("Ви повинні погодитися з умовами!");
                 return;
             }
 
             submitBtn.disabled = true;
             submitBtn.innerText = "Перевірка...";
-            log(`Надсилаю запит для імені: ${username}`);
 
             try {
-                if (!supabase) {
-                    log("Помилка: Клієнт бази даних не створений.");
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = "Підняти вітрила";
-                    return;
-                }
-
-                // 1. Перевірка імені
+                // 1. Перевіряємо глобальну унікальність імені (чи не зайняте воно кимось іншим в усій грі)
                 const { data: existingPlayer, error: searchError } = await supabase
                     .from('players')
                     .select('pirate_name')
                     .eq('pirate_name', username)
                     .maybeSingle();
 
-                if (searchError) {
-                    log("Помилка пошуку: " + searchError.message);
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = "Підняти вітрила";
-                    return;
-                }
+                if (searchError) throw searchError;
 
                 if (existingPlayer) {
-                    log("Нікнейм уже зайнятий.");
                     usernameError.style.display = 'block';
                     submitBtn.disabled = false;
                     submitBtn.innerText = "Підняти вітрила";
                     return; 
                 }
 
-                log("Ім'я вільне. Записую в базу...");
-
-                // 2. Запис у базу
+                // 2. Додаємо абсолютно новий рядок у таблицю (оскільки Unique з tg_id знято, запис пройде успішно)
                 const { error: insertError } = await supabase
                     .from('players')
                     .insert([{ tg_id: tgId, pirate_name: username }]);
 
-                if (insertError) {
-                    log("Помилка запису: " + insertError.message);
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = "Підняти вітрила";
-                    return;
-                }
+                if (insertError) throw insertError;
 
-                log("Успіх! Ласкаво просимо.");
-                tavernGreeting.innerText = `Привіт, Капітане ${username}! 👋`;
-                authScreen.style.display = 'none';
-                tavernScreen.style.display = 'block';
+                // Запам'ятовуємо цього нового пірата як активного
+                localStorage.setItem('active_pirate_name', username);
+                
+                submitBtn.innerText = "Успішно!";
+                openTavern(username);
                 
             } catch (err) {
-                log("Критична помилка коду: " + err.message);
+                log("Помилка створення: " + err.message);
                 submitBtn.disabled = false;
                 submitBtn.innerText = "Підняти вітрила";
             }
         });
+
+        // Запуск перевірки журналу
+        checkAutoLogin();
     </script>
 </body>
 </html>
