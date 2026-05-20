@@ -14,7 +14,7 @@ function initTavern(pirateName) {
     document.getElementById('authScreen').style.display = 'none';
     
     // Виводимо привітання
-    tavernGreeting.innerText = `Привіт, Капітане ${pirateName}! 👋`;
+    tavernGreeting.innerText = `Привіт, Капітане1 ${pirateName}! 👋`;
     
     // Показуємо таверну
     document.getElementById('tavernScreen').style.display = 'block';
