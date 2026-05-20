@@ -2,29 +2,29 @@
  * Модуль керування локацією: Піратська пристань (Міський хаб)
  */
 
-// Отримуємо елементи інтерфейсу пристані з index.html
-const cityGreeting = document.getElementById('cityGreeting');
-const cityScreen = document.getElementById('cityScreen');
-const changeUserBtn = document.getElementById('changeUserBtn');
-
-// Функція активації екрану міста
 function initCity(pirateName) {
-    // Ховаємо екрани завантаження та реєстрації
-    document.getElementById('loadingScreen').style.display = 'none';
-    document.getElementById('authScreen').style.display = 'none';
+    const cityScreen = document.getElementById('cityScreen');
+    const loadingScreen = document.getElementById('loadingScreen');
+    const authScreen = document.getElementById('authScreen');
+
+    if (!cityScreen) return;
+
+    // Ховаємо стартові вікна
+    if (loadingScreen) loadingScreen.style.display = 'none';
+    if (authScreen) authScreen.style.display = 'none';
     
-    // Очищаємо екран міста перед генерацією (щоб кнопки не дублювалися при перезаходах)
+    // Очищаємо екран міста, щоб нічого не дублювалося
     cityScreen.innerHTML = '';
 
-    // 1. Створюємо верхню плашку з ім'ям капітана
+    // 1. Створюємо верхню інформаційну плашку капітана
     const greetingContainer = document.createElement('div');
     greetingContainer.className = 'city-greeting-box';
     greetingContainer.innerHTML = `⚓ Капітан: <strong style="color: #fff;">${pirateName}</strong>`;
     cityScreen.appendChild(greetingContainer);
 
-    // 2. БЛОК 1: ПРИГОДИ
+    // 2. ГЕНЕРУЄМО БЛОК 1: ПРИГОДИ
     const adventureBlock = createLocationBlock('⚔ Пригоди', [
-        { name: '🌊 В море!', id: 'btn_sea' },
+        { name: '🌊 Море', id: 'btn_sea' },
         { name: '💀 Битви', id: 'btn_battles' },
         { name: '🗺 Пошук скарбів', id: 'btn_treasures' },
         { name: '🐙 Монстри', id: 'btn_monsters' },
@@ -32,7 +32,7 @@ function initCity(pirateName) {
     ]);
     cityScreen.appendChild(adventureBlock);
 
-    // 3. БЛОК 2: МІСТО
+    // 3. ГЕНЕРУЄМО БЛОК 2: МІСТО
     const cityBlock = createLocationBlock('🏰 Місто', [
         { name: '🍻 Таверна', id: 'btn_tavern' },
         { name: '🛠 Верфь', id: 'btn_shipyard' },
@@ -43,9 +43,10 @@ function initCity(pirateName) {
     ]);
     cityScreen.appendChild(cityBlock);
 
-    // 4. Повертаємо кнопку зміни користувача в самий низ
+    // 4. Додаємо кнопку зміни користувача в самий ніг екрана
     const logoutBtnContainer = document.createElement('div');
-    logoutBtnContainer.style.marginTop = '15px';
+    logoutBtnContainer.style.textAlign = 'center';
+    logoutBtnContainer.style.marginTop = '20px';
     
     const newChangeUserBtn = document.createElement('button');
     newChangeUserBtn.className = 'change-user-btn';
@@ -55,24 +56,21 @@ function initCity(pirateName) {
     logoutBtnContainer.appendChild(newChangeUserBtn);
     cityScreen.appendChild(logoutBtnContainer);
     
-    // Показуємо місто
+    // Робимо екран міста видимим
     cityScreen.style.display = 'block';
-    
-    console.log(`Успішно завантажено меню пристані для: ${pirateName}`);
+    console.log(`Пристань успішно оновлена для: ${pirateName}`);
 }
 
-// Допоміжна функція для створення блоків меню
+// Допоміжний конструктор таблиць меню як на фото
 function createLocationBlock(title, items) {
     const blockContainer = document.createElement('div');
     blockContainer.className = 'menu-block';
 
-    // Заголовок блоку (червоно-коричнева плашка, як на скріншоті)
     const blockHeader = document.createElement('div');
     blockHeader.className = 'menu-block-header';
     blockHeader.innerText = title;
     blockContainer.appendChild(blockHeader);
 
-    // Список кнопок/посилань
     const listContainer = document.createElement('div');
     listContainer.className = 'menu-list';
 
@@ -82,9 +80,8 @@ function createLocationBlock(title, items) {
         listItem.id = item.id;
         listItem.innerText = item.name;
 
-        // Тимчасова заглушка для кліку (потім рознесемо по файлах)
         listItem.addEventListener('click', () => {
-            alert(`Локація "${item.name}" в розробці. Скоро піднімемо вітрила туди!`);
+            alert(`Локація "${item.name}" будується корабельною командою!`);
         });
 
         listContainer.appendChild(listItem);
@@ -94,11 +91,10 @@ function createLocationBlock(title, items) {
     return blockContainer;
 }
 
-// Функція розлогіну
 function logoutUser() {
     localStorage.removeItem('active_pirate_name');
     document.getElementById('loginUsername').value = "";
     document.getElementById('regUsername').value = "";
     document.getElementById('termsCheckbox').checked = false;
-    showAuthMenu(); // Викликається з index.html
+    showAuthMenu(); // Викликає меню в index
 }
