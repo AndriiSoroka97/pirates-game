@@ -3,16 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Пірати - Стартова сторінка</title>
-    <!-- Підключаємо офіційний скрипт Telegram для майбутньої інтеграції -->
+    <meta name="robots" content="noindex, nofollow">
+    <title>Пірати - Реєстрація</title>
+    
+    <!-- Підключаємо Telegram та SDK Supabase для роботи з БД -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <style>
-        /* Базові стилі для піратської атмосфери */
         body {
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1a120b; /* Темний дерев'яний відтінок */
+            background: #1a120b; 
             color: #f5ebe0;
             display: flex;
             flex-direction: column;
@@ -22,46 +25,44 @@
             box-sizing: border-box;
         }
 
-        /* Шапка гри */
         header {
             width: 100%;
-            background: #3c2a21; /* Колір каюти */
+            background: #3c2a21; 
             padding: 20px 0;
             text-align: center;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-            border-bottom: 3px solid #d4a373; /* Золотий бортик */
+            border-bottom: 3px solid #d4a373; 
         }
 
         header h1 {
             margin: 0;
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             letter-spacing: 4px;
             color: #d4a373;
             text-transform: uppercase;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
         }
 
-        /* Контейнер форми */
         .login-container {
             background: #2f1f17;
-            padding: 30px;
+            padding: 25px;
             border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
             border: 1px solid #4a3525;
             width: 90%;
-            max-width: 360px;
+            max-width: 350px;
             text-align: center;
         }
 
         .login-container h2 {
             margin-top: 0;
             margin-bottom: 20px;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             color: #e6ccb2;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: left;
         }
 
@@ -72,7 +73,7 @@
             color: #b79477;
         }
 
-        .form-group input {
+        .form-group input[type="text"] {
             width: 100%;
             padding: 12px;
             border-radius: 6px;
@@ -85,11 +86,40 @@
             transition: border-color 0.3s;
         }
 
-        .form-group input:focus {
+        .form-group input[type="text"]:focus {
             border-color: #d4a373;
         }
 
-        /* Кнопка "В бій" */
+        /* Повідомлення про помилку імені */
+        .error-msg {
+            color: #ff6b6b;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* Стилізація блоку умов */
+        .terms-group {
+            display: flex;
+            align-items: flex-start;
+            text-align: left;
+            margin-bottom: 20px;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .terms-group input {
+            margin-top: 3px;
+            transform: scale(1.2);
+            accent-color: #d4a373;
+        }
+
+        .terms-group span {
+            font-size: 0.85rem;
+            color: #cbb29c;
+            line-height: 1.3;
+        }
+
         .submit-btn {
             width: 100%;
             padding: 14px;
@@ -105,15 +135,13 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
 
-        .submit-btn:hover {
-            background: #e6ccb2;
+        .submit-btn:disabled {
+            background: #5c4d41;
+            color: #8c7665;
+            cursor: not-allowed;
+            box-shadow: none;
         }
 
-        .submit-btn:active {
-            transform: scale(0.98);
-        }
-
-        /* Підвал */
         footer {
             padding: 15px;
             font-size: 0.8rem;
@@ -123,61 +151,128 @@
 </head>
 <body>
 
-    <!-- Шапка з назвою гри -->
     <header>
         <h1>☠ Пірати ☠</h1>
     </header>
 
-    <!-- Форма реєстрації/входу персонажа -->
     <main class="login-container">
         <h2>Створи свого капітана</h2>
         <form id="loginForm">
             
             <div class="form-group">
                 <label for="username">Ім'я пірата (Нікнейм):</label>
-                <input type="text" id="username" placeholder="Наприклад, Чорна Борода" required autocomplete="off">
+                <input type="text" id="username" placeholder="Наприклад, Чорна Борода" required autocomplete="off" maxlength="20">
+                <div id="usernameError" class="error-msg">Йо-хо-хо! Цей нікнейм уже зайнятий іншим піратом!</div>
             </div>
 
-            <div class="form-group">
-                <label for="avatar">Назва корабля111:</label>
-                <input type="text" id="shipname" placeholder="Наприклад, Летючий Голландець" required autocomplete="off">
-            </div>
+            <!-- Галочка з умовами -->
+            <label class="terms-group">
+                <input type="checkbox" id="termsCheckbox" required>
+                <span>Я підтверджую, що не є резидентом рф/рб, та приймаю правила безпеки гри.</span>
+            </label>
 
-            <button type="submit" class="submit-btn">Підняти вітрила</button>
+            <button type="submit" id="submitBtn" class="submit-btn" disabled>Підняти вітрила</button>
         </form>
     </main>
 
     <footer>
-        &copy; 2026 Гра "Пірати". Всі права захищені.
+        &copy; 2026 Гра "Пірати".
     </footer>
 
     <script>
-        // Ініціалізація Telegram Web App скрипта
+        // ВСТАВ СЮДИ СВОЇ ДАНІ З SUPABASE
+        const SUPABASE_URL = "https://gihdsrwyvonaewyngwnu.supabase.co"; 
+        const SUPABASE_KEY = "sb_publishable_ldLuj_izEdq5ZKYfcOuojg_kiZB42In";
+        
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Розгортаємо вікно гри на весь екран ТГ
+        tg.expand();
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        const form = document.getElementById('loginForm');
+        const usernameInput = document.getElementById('username');
+        const usernameError = document.getElementById('usernameError');
+        const termsCheckbox = document.getElementById('termsCheckbox');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Функція активації кнопки від стану чекбоксу
+        function validateForm() {
+            if (termsCheckbox.checked && usernameInput.value.trim() !== "") {
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.disabled = true;
+            }
+        }
+
+        termsCheckbox.addEventListener('change', validateForm);
+        usernameInput.addEventListener('input', () => {
+            usernameError.style.display = 'none'; // Ховаємо помилку, коли юзер починає писати заново
+            validateForm();
+        });
+
+        // Головна логіка відправки форми
+        form.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const username = document.getElementById('username').value;
-            const shipname = document.getElementById('shipname').value;
-
-            // Зчитуємо дані самого Telegram аккаунта (якщо запущено всередині ТГ)
+            const username = usernameInput.value.trim();
             const tgUser = tg.initDataUnsafe?.user;
-            const tgId = tgUser ? tgUser.id : "Локальний_Тест";
+            const tgId = tgUser ? String(tgUser.id) : "Локальний_Тест_" + Math.floor(Math.random() * 1000);
 
-            // Створюємо об'єкт з даними гравця
-            const playerData = {
-                tg_id: tgId,
-                pirate_name: username,
-                ship_name: shipname
-            };
+            // 1. Блокування, якщо чекбокс не активний (на випадок обходу через HTML)
+            if (!termsCheckbox.checked) {
+                alert("Ви повинні погодитися з умовами!");
+                return;
+            }
 
-            console.log("Дані для відправки на сервер:", playerData);
-            
-            alert(`Капітан ${username}! Корабель "${shipname}" готовий до відплиття! (Дані збережено)`);
-            
-            // Наступним кроком тут буде відправка даних на твій сервер (Бекенд)
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Перевірка...";
+
+            try {
+                // 2. Перевірка імені в БД Supabase
+                const { data: existingPlayer, error: searchError } = await supabase
+                    .from('players')
+                    .select('pirate_name')
+                    .eq('pirate_name', username)
+                    .maybeSingle();
+
+                if (searchError) throw searchError;
+
+                if (existingPlayer) {
+                    // Якщо ім'я знайдено в базі
+                    usernameError.style.display = 'block';
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Підняти вітрила";
+                    return; 
+                }
+
+                // 3. Якщо ім'я вільне — записуємо нового гравця в базу
+                const { error: insertError } = await supabase
+                    .from('players')
+                    .insert([{ tg_id: tgId, pirate_name: username }]);
+
+                if (insertError) {
+                    // Перевірка на випадок, якщо цей Telegram ID вже зареєстрований
+                    if (insertError.code === '23505') { 
+                        alert("Капітане, ваш Telegram акаунт уже має створеного персонажа!");
+                    } else {
+                        throw insertError;
+                    }
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Підняти вітрила";
+                    return;
+                }
+
+                // Успішна реєстрація
+                alert(`Ласкаво просимо на борт, Капітане ${username}! Дані успішно занесено в хмарну базу даних.`);
+                submitBtn.innerText = "Успішно!";
+                
+                // Тут у майбутньому буде перехід на сторінку "Каюти"
+                
+            } catch (err) {
+                console.error("Помилка бази даних:", err);
+                alert("Помилка при з'єднанні з морем даних. Спробуйте ще раз.");
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Підняти вітрила";
+            }
         });
     </script>
 </body>
