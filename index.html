@@ -7,7 +7,7 @@
     <title>Пірати - Реєстрація</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2.43.0/dist/umd/supabase.js"></script>
     
     <style>
         body {
@@ -96,7 +96,6 @@
             display: none;
         }
 
-        /* Тимчасовий блок для дебагу прямо на екрані */
         .debug-box {
             background: #000;
             color: #00ff00;
@@ -106,8 +105,6 @@
             border-radius: 6px;
             margin-top: 15px;
             text-align: left;
-            max-height: 100px;
-            overflow-y: auto;
             border: 1px solid #333;
         }
 
@@ -196,7 +193,7 @@
 
             <button type="submit" id="submitBtn" class="submit-btn">Підняти вітрила</button>
             
-            <div id="debugConsole" class="debug-box">Лог: Очікування старту...</div>
+            <div id="debugConsole" class="debug-box">Лог: Завантаження модулів...</div>
         </form>
     </main>
 
@@ -217,18 +214,24 @@
         
         function log(message) {
             debug.innerText = "Лог: " + message;
-            console.log(message);
         }
 
         const SUPABASE_URL = "https://gihdsrwyvonaewyngwnu.supabase.co"; 
         const SUPABASE_KEY = "sb_publishable_ldLuj_izEdq5ZKYfcOuojg_kiZB42In";
         
         let supabase;
+
+        // Потужна крос-браузерна ініціалізація клієнта
         try {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            log("Бортовий комп'ютер Supabase готовий.");
+            const lib = window.supabase || window.Supabase;
+            if (lib) {
+                supabase = lib.createClient(SUPABASE_URL, SUPABASE_KEY);
+                log("Корабель підключено до портів Supabase!");
+            } else {
+                log("Помилка: Не знайдено бібліотеку Supabase у window.");
+            }
         } catch (e) {
-            log("Критична помилка ініціалізації бази: " + e.message);
+            log("Збій ініціалізації: " + e.message);
         }
 
         const tg = window.Telegram.WebApp;
@@ -253,24 +256,28 @@
             
             const username = usernameInput.value.trim();
             const tgUser = tg.initDataUnsafe?.user;
-            const tgId = tgUser ? String(tgUser.id) : "Test_" + Math.floor(Math.random() * 9999);
-
-            if (username === "") {
-                log("Помилка: Пусте ім'я");
-                return;
-            }
+            
+            // Захист від Unique-блокувань: унікальний нік для тесту з браузера
+            const tgId = tgUser ? String(tgUser.id) : "User_" + Math.floor(Math.random() * 99999);
 
             if (!termsCheckbox.checked) {
-                log("Помилка: Немає згоди з умовами");
+                alert("Ви повинні погодитися з умовами гри!");
                 return;
             }
 
             submitBtn.disabled = true;
             submitBtn.innerText = "Перевірка...";
-            log(`Початок перевірки імені: ${username}`);
+            log(`Надсилаю запит для імені: ${username}`);
 
             try {
-                // 1. Стукаємо в базу для перевірки імені
+                if (!supabase) {
+                    log("Помилка: Клієнт бази даних не створений.");
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Підняти вітрила";
+                    return;
+                }
+
+                // 1. Перевірка імені
                 const { data: existingPlayer, error: searchError } = await supabase
                     .from('players')
                     .select('pirate_name')
@@ -278,43 +285,41 @@
                     .maybeSingle();
 
                 if (searchError) {
-                    log("Помилка пошуку в БД: " + searchError.message + " (Код: " + searchError.code + ")");
+                    log("Помилка пошуку: " + searchError.message);
                     submitBtn.disabled = false;
                     submitBtn.innerText = "Підняти вітрила";
                     return;
                 }
 
                 if (existingPlayer) {
-                    log("Нікнейм зайнятий.");
+                    log("Нікнейм уже зайнятий.");
                     usernameError.style.display = 'block';
                     submitBtn.disabled = false;
                     submitBtn.innerText = "Підняти вітрила";
                     return; 
                 }
 
-                log("Нікнейм вільний. Записую рядок...");
+                log("Ім'я вільне. Записую в базу...");
 
-                // 2. Спроба запису
+                // 2. Запис у базу
                 const { error: insertError } = await supabase
                     .from('players')
                     .insert([{ tg_id: tgId, pirate_name: username }]);
 
                 if (insertError) {
-                    log("Помилка запису в БД: " + insertError.message + " (Код: " + insertError.code + ")");
+                    log("Помилка запису: " + insertError.message);
                     submitBtn.disabled = false;
                     submitBtn.innerText = "Підняти вітрила";
                     return;
                 }
 
-                log("Дані успішно збережено! Відкриваю таверну...");
-                
-                // Перехід на новий екран
+                log("Успіх! Ласкаво просимо.");
                 tavernGreeting.innerText = `Привіт, Капітане ${username}! 👋`;
                 authScreen.style.display = 'none';
                 tavernScreen.style.display = 'block';
                 
             } catch (err) {
-                log("Критичний збій коду: " + err.message);
+                log("Критична помилка коду: " + err.message);
                 submitBtn.disabled = false;
                 submitBtn.innerText = "Підняти вітрила";
             }
