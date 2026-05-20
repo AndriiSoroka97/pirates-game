@@ -89,7 +89,6 @@
             border-color: #d4a373;
         }
 
-        /* Повідомлення про помилку імені */
         .error-msg {
             color: #ff6b6b;
             font-size: 0.85rem;
@@ -97,7 +96,6 @@
             display: none;
         }
 
-        /* Стилізація блоку умов */
         .terms-group {
             display: flex;
             align-items: flex-start;
@@ -138,15 +136,20 @@
             background: #e6ccb2;
         }
 
-        .submit-btn:active {
-            transform: scale(0.98);
-        }
-
         .submit-btn:disabled {
             background: #5c4d41;
             color: #8c7665;
             cursor: not-allowed;
-            box-shadow: none;
+        }
+
+        .tavern-content {
+            background: #1a120b;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px dashed #d4a373;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            text-align: center;
         }
 
         footer {
@@ -162,14 +165,14 @@
         <h1>☠ Пірати ☠</h1>
     </header>
 
-    <main class="login-container">
+    <main id="authScreen" class="login-container">
         <h2>Створи свого капітана</h2>
         <form id="loginForm">
-            
             <div class="form-group">
                 <label for="username">Ім'я пірата (Нікнейм):</label>
                 <input type="text" id="username" placeholder="Наприклад, Чорна Борода" required autocomplete="off" maxlength="20">
                 <div id="usernameError" class="error-msg">Йо-хо-хо! Цей нікнейм уже зайнятий іншим піратом!</div>
+                <div id="systemError" class="error-msg"></div>
             </div>
 
             <label class="terms-group">
@@ -181,59 +184,66 @@
         </form>
     </main>
 
+    <main id="tavernScreen" class="login-container" style="display: none;">
+        <h2>🍻 Портова Таверна 🍻</h2>
+        <div class="tavern-content">
+            <span id="tavernGreeting">Привіт, Капітане!</span>
+        </div>
+        <button class="submit-btn" style="background: #b79477;">Замовити ром</button>
+    </main>
+
     <footer>
         &copy; 2026 Гра "Пірати".
     </footer>
 
     <script>
-        // Твої перевірені дані з Supabase
         const SUPABASE_URL = "https://gihdsrwyvonaewyngwnu.supabase.co"; 
         const SUPABASE_KEY = "sb_publishable_ldLuj_izEdq5ZKYfcOuojg_kiZB42In";
         
-        // Виправлена ініціалізація клієнта
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const tg = window.Telegram.WebApp;
         tg.expand();
 
+        const authScreen = document.getElementById('authScreen');
+        const tavernScreen = document.getElementById('tavernScreen');
+        const tavernGreeting = document.getElementById('tavernGreeting');
+
         const form = document.getElementById('loginForm');
         const usernameInput = document.getElementById('username');
         const usernameError = document.getElementById('usernameError');
+        const systemError = document.getElementById('systemError');
         const termsCheckbox = document.getElementById('termsCheckbox');
         const submitBtn = document.getElementById('submitBtn');
 
-        // Скидаємо текст помилки, коли користувач знову починає вводити нове ім'я
         usernameInput.addEventListener('input', () => {
             usernameError.style.display = 'none';
+            systemError.style.display = 'none';
         });
 
-        // Головна логіка відправки форми при натисканні на кнопку
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const username = usernameInput.value.trim();
             const tgUser = tg.initDataUnsafe?.user;
             
-            // Захист для тестів у звичайному браузері: генеруємо випадковий ID, якщо tgId порожній
-            const tgId = tgUser ? String(tgUser.id) : "Локальний_Тест_" + Math.floor(Math.random() * 10000);
+            // Щоразу генеруємо новий тестовий хвостик, щоб Unique-захист по tg_id нас не блокував при тестах у браузері
+            const tgId = tgUser ? String(tgUser.id) : "Browser_Test_" + Math.floor(Math.random() * 999999);
 
-            // 1. Ручна перевірка імені
             if (username === "") {
-                alert("Йо-хо-хо! Капітан повинен мати ім'я!");
+                alert("Капітан повинен мати ім'я!");
                 return;
             }
 
-            // 2. Ручна перевірка галочки умов
             if (!termsCheckbox.checked) {
-                alert("Ви повинні погодитися з умовами гри, щоб підняти вітрила!");
+                alert("Ви повинні погодитися з умовами гри!");
                 return;
             }
 
-            // Блокуємо кнопку на час запиту, щоб уникнути дублювання кліків
             submitBtn.disabled = true;
             submitBtn.innerText = "Перевірка...";
 
             try {
-                // 3. Перевірка імені в БД (таблиця 'players' з маленької літери)
+                // 1. Перевірка імені в таблиці
                 const { data: existingPlayer, error: searchError } = await supabase
                     .from('players')
                     .select('pirate_name')
@@ -243,22 +253,21 @@
                 if (searchError) throw searchError;
 
                 if (existingPlayer) {
-                    // Якщо ім'я вже зайняте
                     usernameError.style.display = 'block';
                     submitBtn.disabled = false;
                     submitBtn.innerText = "Підняти вітрила";
                     return; 
                 }
 
-                // 4. Записуємо нового гравця, якщо ім'я вільне
+                // 2. Запис нового користувача
                 const { error: insertError } = await supabase
                     .from('players')
                     .insert([{ tg_id: tgId, pirate_name: username }]);
 
                 if (insertError) {
-                    // Якщо цей Telegram ID вже є в базі (обмеження Unique)
                     if (insertError.code === '23505') { 
-                        alert("Капітане, ваш Telegram акаунт уже має створеного персонажа!");
+                        systemError.innerText = "Увага: Цей Telegram акаунт вже створив персонажа!";
+                        systemError.style.display = 'block';
                     } else {
                         throw insertError;
                     }
@@ -267,15 +276,15 @@
                     return;
                 }
 
-                // Успішне збереження в базу даних
-                alert(`Ласкаво просимо на борт, Капітане ${username}! Дані успішно занесено в базу.`);
-                submitBtn.innerText = "Успішно!";
-                
-                // Сюди згодом пропишемо перехід на наступний екран гри
+                // ПЕРЕХІД ДО ТАВЕРНИ
+                tavernGreeting.innerText = `Привіт, Капітане ${username}! 👋`;
+                authScreen.style.display = 'none';
+                tavernScreen.style.display = 'block';
                 
             } catch (err) {
-                console.error("Помилка бази даних:", err);
-                alert("Помилка при з'єднанні з морем даних. Спробуйте ще раз.");
+                console.error(err);
+                systemError.innerText = "Помилка бази: " + (err.message || "Невідомий збій");
+                systemError.style.display = 'block';
                 submitBtn.disabled = false;
                 submitBtn.innerText = "Підняти вітрила";
             }
