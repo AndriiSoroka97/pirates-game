@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>☠ Пірати ☠</title>
+    <title>☠ Пірати - Піратська пристань ☠</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2.43.0/dist/umd/supabase.js"></script>
@@ -58,12 +58,13 @@
         </div>
     </div>
 
-    <main id="tavernScreen" class="login-container" style="display: none;">
-        <h2>🍻 Портова Таверна 🍻</h2>
+    <main id="cityScreen" class="login-container" style="display: none;">
+        <h2>⚓ Піратська пристань ⚓</h2>
         <div class="tavern-content">
-            <span id="tavernGreeting">Привіт, Капітане!</span>
+            <span id="cityGreeting">Привіт, Капітане!</span>
         </div>
-        <button id="drinkRumBtn" class="submit-btn" style="background: #3c2a21; color: #d4a373; border: 1px solid #d4a373;">Замовити ром</button>
+        
+        <button id="explorePortBtn" class="submit-btn" style="background: #3c2a21; color: #d4a373; border: 1px solid #d4a373;">Оглянути порт</button>
         <button id="changeUserBtn" class="change-user-btn">Змінити користувача</button>
     </main>
 
@@ -80,14 +81,13 @@
         const SUPABASE_URL = "https://gihdsrwyvonaewyngwnu.supabase.co"; 
         const SUPABASE_KEY = "sb_publishable_ldLuj_izEdq5ZKYfcOuojg_kiZB42In";
         
-        // Ініціалізуємо базу один раз — вона буде доступна і в файлі tavern.js
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const tg = window.Telegram.WebApp;
         tg.expand();
 
         const loadingScreen = document.getElementById('loadingScreen');
         const authScreen = document.getElementById('authScreen');
-        const tavernScreen = document.getElementById('tavernScreen');
+        const cityScreen = document.getElementById('cityScreen');
 
         const loginForm = document.getElementById('loginForm');
         const loginUsernameInput = document.getElementById('loginUsername');
@@ -114,7 +114,7 @@
             const activePirate = localStorage.getItem('active_pirate_name');
             
             if (activePirate) {
-                initTavern(activePirate); // Ця функція вже лежить у файлі tavern.js
+                initCity(activePirate); // Функція викликається з файлу city.js
                 return;
             }
 
@@ -130,7 +130,7 @@
                 if (players && players.length > 0) {
                     const latestPirate = players[0].pirate_name;
                     localStorage.setItem('active_pirate_name', latestPirate);
-                    initTavern(latestPirate);
+                    initCity(latestPirate);
                 } else {
                     showAuthMenu();
                 }
@@ -143,11 +143,11 @@
 
         function showAuthMenu() {
             loadingScreen.style.display = 'none';
-            tavernScreen.style.display = 'none';
+            cityScreen.style.display = 'none';
             authScreen.style.display = 'flex';
         }
 
-        // Вхід існуючого користувача
+        // Вхід користувача
         loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const username = loginUsernameInput.value.trim();
@@ -169,7 +169,7 @@
                     localStorage.setItem('active_pirate_name', player.pirate_name);
                     loginBtn.innerText = "Увійти";
                     loginBtn.disabled = false;
-                    initTavern(player.pirate_name);
+                    initCity(player.pirate_name);
                 } else {
                     loginError.style.display = 'block';
                     loginBtn.disabled = false;
@@ -220,7 +220,7 @@
                 localStorage.setItem('active_pirate_name', username);
                 registerBtn.innerText = "Створити";
                 registerBtn.disabled = false;
-                initTavern(username);
+                initCity(username);
                 
             } catch (err) {
                 log("Помилка створення: " + err.message);
@@ -229,10 +229,9 @@
             }
         });
 
-        // Перевіряємо логін після того, як завантажаться ВСІ скрипти
         window.addEventListener('DOMContentLoaded', checkAutoLogin);
     </script>
 
-    <script src="tavern.js"></script>
+    <script src="city.js"></script>
 </body>
 </html>
