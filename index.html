@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пірати - Стартова сторінка</title>
+    <!-- Підключаємо офіційний скрипт Telegram для майбутньої інтеграції -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        /* Базові стилі для піратської атмосфери */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a120b; /* Темний дерев'яний відтінок */
+            color: #f5ebe0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* Шапка гри */
+        header {
+            width: 100%;
+            background: #3c2a21; /* Колір каюти */
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            border-bottom: 3px solid #d4a373; /* Золотий бортик */
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            letter-spacing: 4px;
+            color: #d4a373;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Контейнер форми */
+        .login-container {
+            background: #2f1f17;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+            border: 1px solid #4a3525;
+            width: 90%;
+            max-width: 360px;
+            text-align: center;
+        }
+
+        .login-container h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            color: #e6ccb2;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #b79477;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #4a3525;
+            background: #1a120b;
+            color: #fff;
+            font-size: 1rem;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: #d4a373;
+        }
+
+        /* Кнопка "В бій" */
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: #d4a373;
+            border: none;
+            border-radius: 6px;
+            color: #1a120b;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .submit-btn:hover {
+            background: #e6ccb2;
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Підвал */
+        footer {
+            padding: 15px;
+            font-size: 0.8rem;
+            color: #654e3c;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Шапка з назвою гри -->
+    <header>
+        <h1>☠ Пірати ☠</h1>
+    </header>
+
+    <!-- Форма реєстрації/входу персонажа -->
+    <main class="login-container">
+        <h2>Створи свого капітана</h2>
+        <form id="loginForm">
+            
+            <div class="form-group">
+                <label for="username">Ім'я пірата (Нікнейм):</label>
+                <input type="text" id="username" placeholder="Наприклад, Чорна Борода" required autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <label for="avatar">Назва корабля:</label>
+                <input type="text" id="shipname" placeholder="Наприклад, Летючий Голландець" required autocomplete="off">
+            </div>
+
+            <button type="submit" class="submit-btn">Підняти вітрила</button>
+        </form>
+    </main>
+
+    <footer>
+        &copy; 2026 Гра "Пірати". Всі права захищені.
+    </footer>
+
+    <script>
+        // Ініціалізація Telegram Web App скрипта
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Розгортаємо вікно гри на весь екран ТГ
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const shipname = document.getElementById('shipname').value;
+
+            // Зчитуємо дані самого Telegram аккаунта (якщо запущено всередині ТГ)
+            const tgUser = tg.initDataUnsafe?.user;
+            const tgId = tgUser ? tgUser.id : "Локальний_Тест";
+
+            // Створюємо об'єкт з даними гравця
+            const playerData = {
+                tg_id: tgId,
+                pirate_name: username,
+                ship_name: shipname
+            };
+
+            console.log("Дані для відправки на сервер:", playerData);
+            
+            alert(`Капітан ${username}! Корабель "${shipname}" готовий до відплиття! (Дані збережено)`);
+            
+            // Наступним кроком тут буде відправка даних на твій сервер (Бекенд)
+        });
+    </script>
+</body>
+</html>
