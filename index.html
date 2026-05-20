@@ -4,205 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>Пірати - Меню вибору</title>
+    <title>☠ Пірати ☠</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2.43.0/dist/umd/supabase.js"></script>
     
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1a120b; 
-            color: #f5ebe0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-
-        header {
-            width: 100%;
-            background: #3c2a21; 
-            padding: 20px 0;
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-            border-bottom: 3px solid #d4a373; 
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 2.2rem;
-            letter-spacing: 4px;
-            color: #d4a373;
-            text-transform: uppercase;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-        }
-
-        .login-container {
-            background: #2f1f17;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
-            border: 1px solid #4a3525;
-            width: 90%;
-            max-width: 350px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        /* Розділювач між блоками */
-        .or-divider {
-            margin: 15px 0;
-            color: #b79477;
-            font-weight: bold;
-            text-transform: uppercase;
-            font-size: 0.9rem;
-            letter-spacing: 2px;
-        }
-
-        .login-container h2 {
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-            color: #e6ccb2;
-            text-transform: uppercase;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 0.85rem;
-            color: #b79477;
-        }
-
-        .form-group input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #4a3525;
-            background: #1a120b;
-            color: #fff;
-            font-size: 1rem;
-            box-sizing: border-box;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input[type="text"]:focus {
-            border-color: #d4a373;
-        }
-
-        .error-msg {
-            color: #ff6b6b;
-            font-size: 0.85rem;
-            margin-top: 5px;
-            display: none;
-        }
-
-        .debug-box {
-            background: #000;
-            color: #00ff00;
-            font-family: monospace;
-            font-size: 0.8rem;
-            padding: 10px;
-            border-radius: 6px;
-            margin-top: 15px;
-            text-align: left;
-            border: 1px solid #333;
-        }
-
-        .terms-group {
-            display: flex;
-            align-items: flex-start;
-            text-align: left;
-            margin-bottom: 15px;
-            gap: 10px;
-            cursor: pointer;
-        }
-
-        .terms-group input {
-            margin-top: 3px;
-            transform: scale(1.1);
-            accent-color: #d4a373;
-        }
-
-        .terms-group span {
-            font-size: 0.8rem;
-            color: #cbb29c;
-            line-height: 1.3;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 12px;
-            background: #d4a373;
-            border: none;
-            border-radius: 6px;
-            color: #1a120b;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: background 0.2s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
-
-        .submit-btn:hover {
-            background: #e6ccb2;
-        }
-
-        .submit-btn:disabled {
-            background: #5c4d41;
-            color: #8c7665;
-            cursor: not-allowed;
-        }
-
-        .tavern-content {
-            background: #1a120b;
-            padding: 25px;
-            border-radius: 8px;
-            border: 1px dashed #d4a373;
-            margin-bottom: 20px;
-            font-size: 1.2rem;
-            text-align: center;
-        }
-
-        .change-user-btn {
-            background: transparent;
-            border: none;
-            color: #8c7665;
-            font-size: 0.8rem;
-            text-decoration: underline;
-            cursor: pointer;
-            margin-top: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .change-user-btn:hover {
-            color: #d4a373;
-        }
-
-        #loadingScreen {
-            font-size: 1.2rem;
-            color: #d4a373;
-            margin: auto;
-        }
-
-        footer {
-            padding: 15px;
-            font-size: 0.8rem;
-            color: #654e3c;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -214,7 +21,7 @@
         <p>⚓ Перевірка суднового журналу... 🌊</p>
     </main>
 
-    <div id="authScreen" style="display: none; width: 100%; display: flex; flex-direction: column; align-items: center;">
+    <div id="authScreen" style="display: none; width: 100%; flex-direction: column; align-items: center;">
         
         <main class="login-container">
             <h2>Вхід на корабель</h2>
@@ -256,7 +63,7 @@
         <div class="tavern-content">
             <span id="tavernGreeting">Привіт, Капітане!</span>
         </div>
-        <button class="submit-btn" style="background: #3c2a21; color: #d4a373; border: 1px solid #d4a373;">Замовити ром</button>
+        <button id="drinkRumBtn" class="submit-btn" style="background: #3c2a21; color: #d4a373; border: 1px solid #d4a373;">Замовити ром</button>
         <button id="changeUserBtn" class="change-user-btn">Змінити користувача</button>
     </main>
 
@@ -273,6 +80,7 @@
         const SUPABASE_URL = "https://gihdsrwyvonaewyngwnu.supabase.co"; 
         const SUPABASE_KEY = "sb_publishable_ldLuj_izEdq5ZKYfcOuojg_kiZB42In";
         
+        // Ініціалізуємо базу один раз — вона буде доступна і в файлі tavern.js
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const tg = window.Telegram.WebApp;
         tg.expand();
@@ -280,7 +88,6 @@
         const loadingScreen = document.getElementById('loadingScreen');
         const authScreen = document.getElementById('authScreen');
         const tavernScreen = document.getElementById('tavernScreen');
-        const tavernGreeting = document.getElementById('tavernGreeting');
 
         const loginForm = document.getElementById('loginForm');
         const loginUsernameInput = document.getElementById('loginUsername');
@@ -292,8 +99,6 @@
         const regError = document.getElementById('regError');
         const termsCheckbox = document.getElementById('termsCheckbox');
         const registerBtn = document.getElementById('registerBtn');
-        
-        const changeUserBtn = document.getElementById('changeUserBtn');
 
         const tgUser = tg.initDataUnsafe?.user;
         if (!sessionStorage.getItem('browser_test_id')) {
@@ -301,20 +106,18 @@
         }
         const tgId = tgUser ? String(tgUser.id) : sessionStorage.getItem('browser_test_id');
 
-        // Очищення помилок при введенні
         loginUsernameInput.addEventListener('input', () => loginError.style.display = 'none');
         regUsernameInput.addEventListener('input', () => regError.style.display = 'none');
 
-        // --- ЛОГІКА АВТОЛОГІНУ ---
+        // Автологін при старті
         async function checkAutoLogin() {
             const activePirate = localStorage.getItem('active_pirate_name');
             
             if (activePirate) {
-                openTavern(activePirate);
+                initTavern(activePirate); // Ця функція вже лежить у файлі tavern.js
                 return;
             }
 
-            // Якщо локально пусті — шукаємо в базі ОСТАННЬОГО створеного під цим ТГ ІД
             try {
                 const { data: players, error } = await supabase
                     .from('players')
@@ -327,7 +130,7 @@
                 if (players && players.length > 0) {
                     const latestPirate = players[0].pirate_name;
                     localStorage.setItem('active_pirate_name', latestPirate);
-                    openTavern(latestPirate);
+                    initTavern(latestPirate);
                 } else {
                     showAuthMenu();
                 }
@@ -338,29 +141,13 @@
             }
         }
 
-        function openTavern(name) {
-            loadingScreen.style.display = 'none';
-            authScreen.style.display = 'none';
-            tavernGreeting.innerText = `Привіт, Капітане ${name}! 👋`;
-            tavernScreen.style.display = 'block';
-        }
-
         function showAuthMenu() {
             loadingScreen.style.display = 'none';
             tavernScreen.style.display = 'none';
-            authScreen.style.setProperties ? authScreen.style.setProperties('display', 'flex', 'important') : authScreen.style.display = 'flex';
+            authScreen.style.display = 'flex';
         }
 
-        // --- КНОПКА РОЗЛОГІНУ ---
-        changeUserBtn.addEventListener('click', () => {
-            localStorage.removeItem('active_pirate_name');
-            loginUsernameInput.value = "";
-            regUsernameInput.value = "";
-            termsCheckbox.checked = false;
-            showAuthMenu();
-        });
-
-        // --- ФОРМА 1: ЛОГІН (ВХІД ІСНУЮЧОГО) ---
+        // Вхід існуючого користувача
         loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const username = loginUsernameInput.value.trim();
@@ -369,7 +156,6 @@
             loginBtn.innerText = "Перевірка борту...";
 
             try {
-                // Перевіряємо в базі рядок, де збігається І ім'я, І ТГ ІД
                 const { data: player, error } = await supabase
                     .from('players')
                     .select('pirate_name')
@@ -380,13 +166,11 @@
                 if (error) throw error;
 
                 if (player) {
-                    // Успішний вхід: записуємо як активного і в таверну
                     localStorage.setItem('active_pirate_name', player.pirate_name);
                     loginBtn.innerText = "Увійти";
                     loginBtn.disabled = false;
-                    openTavern(player.pirate_name);
+                    initTavern(player.pirate_name);
                 } else {
-                    // Помилка доступу (або немає такого ніка, або нік належить іншому ТГ ID)
                     loginError.style.display = 'block';
                     loginBtn.disabled = false;
                     loginBtn.innerText = "Увійти";
@@ -398,7 +182,7 @@
             }
         });
 
-        // --- ФОРМА 2: РЕЄСТРАЦІЯ (СТВОРЕННЯ НОВОГО) ---
+        // Створення нового користувача
         registerForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const username = regUsernameInput.value.trim();
@@ -412,7 +196,6 @@
             registerBtn.innerText = "Будівництво корабля...";
 
             try {
-                // Перевірка глобальної унікальності імені
                 const { data: existingPlayer, error: searchError } = await supabase
                     .from('players')
                     .select('pirate_name')
@@ -428,7 +211,6 @@
                     return; 
                 }
 
-                // Запис нового
                 const { error: insertError } = await supabase
                     .from('players')
                     .insert([{ tg_id: tgId, pirate_name: username }]);
@@ -438,7 +220,7 @@
                 localStorage.setItem('active_pirate_name', username);
                 registerBtn.innerText = "Створити";
                 registerBtn.disabled = false;
-                openTavern(username);
+                initTavern(username);
                 
             } catch (err) {
                 log("Помилка створення: " + err.message);
@@ -447,8 +229,10 @@
             }
         });
 
-        // Запуск суднового журналу
-        checkAutoLogin();
+        // Перевіряємо логін після того, як завантажаться ВСІ скрипти
+        window.addEventListener('DOMContentLoaded', checkAutoLogin);
     </script>
+
+    <script src="tavern.js"></script>
 </body>
 </html>
